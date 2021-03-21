@@ -163,6 +163,7 @@ void xinjian() {
         scanf("%s", password1);
 
 
+
         if(strcmp(password, password1) != 0)
         {
             printf("There are different between twice input!Please register again!");
