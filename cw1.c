@@ -3,9 +3,6 @@
 #include<conio.h>
 #include<string.h>
 #include<math.h>
-#include<time.h>
-#include <windows.h>
-
 #define LEN sizeof(struct Book)
 #define LEN1 sizeof(struct reader)
 #define LEN2 sizeof(struct land)
@@ -84,10 +81,9 @@ void cxts();//find book
 void zjts();//increase book
 void scts();//delete book
 void llts();//browse book
-void xinjian();
 
 void land();//login fuction system
-
+void xinjian();
 void xgmm();//change the password
 void lmain();//the function of the login
 
@@ -113,7 +109,8 @@ void lmenu()//the basic page
 void lmain()//the fuction of login function
 {
 
-
+    void land();
+    void xinjian();
     char choose;
     lmenu();
     scanf(" %c", &choose);
@@ -141,10 +138,10 @@ void lmain()//the fuction of login function
 
 void xinjian() {
     FILE* fp;
-    int j=0,i,jj=2;
-    char account[20],  password[20], password1[20], usename[20];
+
+    char account[20], password[20], password1[20], usename[20];
     char hit = 0;
-    if ((fp = fopen("land.txt","r"))==NULL)
+    if ((fp = fopen("land.txt", "r")) == NULL)
     {
         fp = fopen("land.txt", "w");
         fclose(fp);
@@ -155,7 +152,6 @@ void xinjian() {
     {
         printf("\nPlease input your name :");
         scanf("%s", account);
-
         printf("\nPlease input your password(less than 20 characters):");
 
         scanf("%s", password);
@@ -163,8 +159,7 @@ void xinjian() {
         scanf("%s", password1);
 
 
-
-        if(strcmp(password, password1) != 0)
+        if (strcmp(password, password1) != 0)
         {
             printf("There are different between twice input!Please register again!");
             hit = getch();
@@ -177,12 +172,12 @@ void xinjian() {
         {
             printf("\nPlease input your usename(less than 20 characters):");
             scanf("%s", usename);
-            fprintf(fp, "%s %s %s\n", account, password,usename);
+            fprintf(fp, "%s %s %s\n", account, password, usename);
             break;
         }
     }
     fclose(fp);
-    printf("Dear %s,，your account has be built successfully",usename);
+    printf("Dear %s,，your account has be built successfully", usename);
     getch();
     system("cls");
     lmain();
