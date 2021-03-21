@@ -5,7 +5,7 @@
 #include<math.h>
 #include<time.h>
 #include <windows.h>
-#include<algorithm>
+
 #define LEN sizeof(struct Book)
 #define LEN1 sizeof(struct reader)
 #define LEN2 sizeof(struct land)
@@ -84,9 +84,10 @@ void cxts();//find book
 void zjts();//increase book
 void scts();//delete book
 void llts();//browse book
+void xinjian();
 
 void land();//login fuction system
-int xinjian(int, char[]);//build a new account
+
 void xgmm();//change the password
 void lmain();//the function of the login
 
@@ -112,8 +113,7 @@ void lmenu()//the basic page
 void lmain()//the fuction of login function
 {
 
-    void land();
-    void xinjian();
+
     char choose;
     lmenu();
     scanf(" %c", &choose);
@@ -155,14 +155,7 @@ void xinjian() {
     {
         printf("\nPlease input your name :");
         scanf("%s", account);
-        for(i = 0; i<jj; i++){
 
-            if(strcmp(account[i].AcName, account) == 0){
-                printf("\t\t\t该账号已被注册，请重新申请！！\n\n\t\t\t   ");
-                system("PAUSE");
-                return ;
-            }
-        }
         printf("\nPlease input your password(less than 20 characters):");
 
         scanf("%s", password);
