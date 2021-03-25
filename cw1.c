@@ -1,275 +1,880 @@
-//å›¾ä¹¦ç®¡ç†ç³»ç»Ÿï¼ˆå•é“¾è¡¨ç‰ˆï¼‰
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
 #include<time.h>
 
-typedef struct book //å›¾ä¹¦
+typedef struct _Book 
 {
-    char title[100];  //ä¹¦å
-    char isbn[100];  //ä¹¦å·
-    char author[100];  //ä½œè€…
-    char publisher[100];  //å‡ºç‰ˆç¤¾
-    int cnt; //ä¹¦ç±æ•°é‡
-    struct book* next;  //ä¸‹ä¸€æœ¬ä¹¦ç±
+	char title[100];  
+	char isbn[100]; 
+	char author[100];  
+	char publisher[100];  
+	char year[30];
+	int cnt; 
+	struct _Book* next;  
 }Book;
-Book* book_head;  //å›¾ä¹¦å¤´æŒ‡é’ˆ
-int book_amount;  //å›¾ä¹¦æ€»æ•°é‡
+Book* book_head;  //Í¼ÊéÍ·Ö¸Õë
+int book_amount;  //Í¼Êé×ÜÊıÁ¿
 
-struct node //ç”¨æˆ·æ‰€å€Ÿä¹¦ç±
+struct node //ÓÃ»§Ëù½èÊé¼®
 {
-    int borrow_amount, max_amount; //æ‰€å€Ÿä¹¦ç±æ•°é‡ï¼Œ æœ€å¤§å€Ÿä¹¦æ•°
-    double tax;  //è¶…å‡ºæ—¶é™æ”¶è´¹æ¯”ç‡
-    time_t borrow_time[10], return_time[10];  //å€Ÿã€è¿˜æ—¶é—´
-    Book borrow_book[10];  //æ¯ä½æœ€å¤šå€Ÿ10æœ¬ä¹¦ç±
+	int borrow_amount, max_amount; //Ëù½èÊé¼®ÊıÁ¿£¬ ×î´ó½èÊéÊı
+	double tax;  //³¬³öÊ±ÏŞÊÕ·Ñ±ÈÂÊ
+	time_t borrow_time[10], return_time[10];  //½è¡¢»¹Ê±¼ä
+	Book borrow_book[10];  //Ã¿Î»×î¶à½è10±¾Êé¼®
 };
 
-typedef struct user //ç”¨æˆ·
+typedef struct user //ÓÃ»§
 {
-    char user_name[30];  //ç”¨æˆ·å
-    char password[30];  //å¯†ç 
-    char ID[30]; //æœ‰æ•ˆè¯ä»¶å·ç 
-    int admin;  //æ˜¯å¦ç®¡ç†å‘˜
-    struct node user_book;  //ç”¨æˆ·æ‰€å€Ÿä¹¦ç±
-    struct user* next;  //ä¸‹ä¸€ä½ç”¨æˆ·
+	char user_name[30];  //ÓÃ»§Ãû
+	char password[30];  //ÃÜÂë
+	char ID[100]; //ÓĞĞ§Ö¤¼şºÅÂë
+	int admin;  //ÊÇ·ñ¹ÜÀíÔ±
+	struct node user_book;  //ÓÃ»§Ëù½èÊé¼®
+	struct user* next;  //ÏÂÒ»Î»ÓÃ»§
 }User;
-User* user_head;  //ç”¨æˆ·å¤´æŒ‡é’ˆ
-User* leeds;  //è¶…çº§ç®¡ç†å‘˜è´¦å·
-int user_amount;  //ç”¨æˆ·æ€»æ•°é‡
+User* user_head;  //ÓÃ»§Í·Ö¸Õë
+User* leeds;  //³¬¼¶¹ÜÀíÔ±ÕËºÅ
+int user_amount;  //ÓÃ»§×ÜÊıÁ¿
 
-//ç¨‹åºåŠŸèƒ½åŒº
-void welcome_page();  //æ¬¢è¿é¡µé¢
-void producer_infor();  //åˆ¶ä½œäººå‘˜ä¿¡æ¯
-void manual();  //ä½¿ç”¨æ‰‹å†Œ
-void main_menu();  //ä¸»èœå•
+//³ÌĞò¹¦ÄÜÇø
+void welcome_page();  //»¶Ó­Ò³Ãæ
+void producer_infor();  //ÖÆ×÷ÈËÔ±ĞÅÏ¢
+void manual();  //Ê¹ÓÃÊÖ²á
+void main_menu();  //Ö÷²Ëµ¥
 
-//ä¸»èœå•åŠŸèƒ½åŒº
-void user_register();  //ç”¨æˆ·æ³¨å†Œ
-void user_login();  //ç”¨æˆ·ç™»å½•
-void admin_login();  //ç®¡ç†å‘˜ç™»é™†
+//Ö÷²Ëµ¥¹¦ÄÜÇø
+void user_register();  //ÓÃ»§×¢²á
+void user_login();  //ÓÃ»§µÇÂ¼
+void admin_login();  //¹ÜÀíÔ±µÇÂ½
 
-//æ ¸å¿ƒåŠŸèƒ½åŒº
-void creat_user_list(char*, char*, char*);  //åˆ›å»ºç”¨æˆ·é“¾è¡¨
-void creat_book_list(char*, char*, char*, char*, int);  //åˆ›å»ºå›¾ä¹¦é“¾è¡¨
-void user_initi(User*);  //ç”¨æˆ·å›¾ä¹¦ç®¡ç†åˆå§‹åŒ–
-void load();  //ä»æ–‡ä»¶ä¸­åŠ è½½æ•°æ®
-void save();  //ä¿å­˜æ•°æ®åˆ°æ–‡ä»¶
+//ºËĞÄ¹¦ÄÜÇø
+void creat_user_list(char*, char*, char*);  //´´½¨ÓÃ»§Á´±í
+void creat_book_list(char*, char*, char*, char*, char*, int);  //´´½¨Í¼ÊéÁ´±í
+void user_initi(User*);  //ÓÃ»§Í¼Êé¹ÜÀí³õÊ¼»¯
+void load();  //´ÓÎÄ¼şÖĞ¼ÓÔØÊı¾İ
+void save();  //±£´æÊı¾İµ½ÎÄ¼ş
 
-//ç”¨æˆ·åŠŸèƒ½åŒº
-void user_menu(User*);  //ç”¨æˆ·èœå•
-void user_change(User*);  //æ›´æ”¹ç”¨æˆ·ä¿¡æ¯
-int delete_user(User*);  //åˆ é™¤è´¦å·
-void borrow_book(User*);  //å€Ÿé˜…ç®¡ç†
-void return_book(User*);  //è¿˜ä¹¦ç®¡ç†
-void history(User*);  //å†å²å€Ÿé˜…æµè§ˆ
+//ÓÃ»§¹¦ÄÜÇø
+void user_menu(User*);  //ÓÃ»§²Ëµ¥
+void user_change(User*);  //¸ü¸ÄÓÃ»§ĞÅÏ¢
+int delete_user(User*);  //É¾³ıÕËºÅ
+void borrow_book(User*);  //½èÔÄ¹ÜÀí
+void return_book(User*);  //»¹Êé¹ÜÀí
+void history(User*);  //ÀúÊ·½èÔÄä¯ÀÀ
 
-//ç®¡ç†å‘˜åŠŸèƒ½åŒº
-void admin_initi();  //è¶…çº§ç®¡ç†å‘˜è´¦å·åˆå§‹åŒ–
-User* serch_username(char*);  //æŸ¥æ‰¾ç”¨æˆ·å
-void admin_menu(User*);  //ç®¡ç†å‘˜èœå•
-void query_user();  //ç”¨æˆ·ä¿¡æ¯æŸ¥è¯¢
-void admin_user();  //ç®¡ç†ç”¨æˆ·ä¿¡æ¯
-void all_history(); //æŸ¥çœ‹ç”¨æˆ·å›¾ä¹¦å€Ÿé˜…å½’è¿˜æƒ…å†µ
-User* serch_user();  //æŒ‰åºå·æœç´¢ç”¨æˆ·
-void set_admin(User*);  //è®¾ç½®ç®¡ç†å‘˜
+//¹ÜÀíÔ±¹¦ÄÜÇø
+void admin_initi();  //³¬¼¶¹ÜÀíÔ±ÕËºÅ³õÊ¼»¯
+User* serch_username(char*);  //²éÕÒÓÃ»§Ãû
+void admin_menu(User*);  //¹ÜÀíÔ±²Ëµ¥
+void query_user();  //ÓÃ»§ĞÅÏ¢²éÑ¯
+void admin_user();  //¹ÜÀíÓÃ»§ĞÅÏ¢
+void all_history(); //²é¿´ÓÃ»§Í¼Êé½èÔÄ¹é»¹Çé¿ö
+User* serch_user();  //°´ĞòºÅËÑË÷ÓÃ»§
+void set_admin(User*);  //ÉèÖÃ¹ÜÀíÔ±
 
-//å›¾ä¹¦ç®¡ç†åŠŸèƒ½åŒº
-void add_book();  //å¢åŠ å›¾ä¹¦ä¿¡æ¯
-void delete_book();  //åˆ é™¤å›¾ä¹¦ä¿¡æ¯
-void browse_book();  //å›¾ä¹¦æµè§ˆ
+//Í¼Êé¹ÜÀí¹¦ÄÜÇø
+void add_book();  //Ôö¼ÓÍ¼ÊéĞÅÏ¢
+void delete_book();  //É¾³ıÍ¼ÊéĞÅÏ¢
+void browse_book();  //Í¼Êéä¯ÀÀ
 
 int main()
 {
-    welcome_page();
-    printf("You successfully quit the system! Thank you for using it!\n");
-    system("pause"); system("cls");
-    return 0;
+	welcome_page();
+	printf("You successfully quit the system! Thank you for using it!\n\n");
+	system("pause"); system("cls");
+	return 0;
 }
 
-/********ç¨‹åºåŠŸèƒ½åŒº***********/
-void welcome_page()  //æ¬¢è¿é¡µé¢
+/********³ÌĞò¹¦ÄÜÇø***********/
+void welcome_page()  //»¶Ó­Ò³Ãæ
 {
-    load();
-    while (1)
-    {
+	load();
+	while (1)
+	{
 
-        printf("          +---------------------------------------------+\n");
-        printf("          Welcome to use the management system of books!\n");
+		printf("+---------------------------------------------+\n\n");
+		printf("Welcome to use the management system of books!\n\n");
 
-        printf("          Please operate according to the number!\n");
-        printf("          1 go to the function page\n");
-        printf("          2 the account of Super Administrator \n");
+		printf("Please operate according to the number!\n\n");
+		printf("1 go to the function page\n\n");
+		printf("2 the account of Super Administrator \n\n");
 
-        printf("          0 Quit\n");
-        printf("          +---------------------------------------------+\n");
-        int op; scanf("%d", &op); system("cls");
-        switch (op)
-        {
-            case 1: main_menu(); break;
-            case 2:manual(); break;
-            case 0: return;
-            default: printf("Sorry, your input is wrong. Please input again!\n"); system("pause"); system("cls"); break;
-        }
-    }
+		printf("0 Quit\n\n");
+		printf("+---------------------------------------------+\n\n");
+		int op; scanf("%d", &op); system("cls");
+		switch (op)
+		{
+		case 1: main_menu(); break;
+		case 2:manual(); break;
+		case 0: return;
+		default: printf("Sorry, your input is wrong. Please input again!\n\n"); system("pause"); system("cls"); break;
+		}
+	}
 }
 
-void manual() //ä½¿ç”¨æ‰‹å†Œ
+void manual() //Ê¹ÓÃÊÖ²á
 {
-    printf("*******************************************************************************\n");
-    printf("User notice:\nInitial administrator accountï¼šleeds\tpasswordï¼šleeds\n nameï¼šleeds\n\n");
-    printf("*******************************************************************************\n");
-    system("pause"); system("cls");
+	printf("*******************************************************************************\n\n");
+	printf("User notice:\n\nInitial administrator account£ºleeds\tpassword£ºleeds\n\n name£ºleeds\n\n\n\n");
+	printf("*******************************************************************************\n\n");
+	system("pause"); system("cls");
 }
 
-void main_menu()  //ä¸»èœå•
+void main_menu()  //Ö÷²Ëµ¥
 {
-    while (1)
-    {
-        printf("+---------------------------------------------+\n");
-        printf("          Welcome to use the management system of books!\n");
-        printf("          Please operate according to the number\n");
-        printf("          1 users registe\n");
-        printf("          2 users login\n");
-        printf("          3 Administrator login\n");
-        printf("          0 Quit\n");
-        printf("+---------------------------------------------+\n");
-        int op; scanf("%d", &op); system("cls");
-        switch (op)
-        {
-            case 1: user_register(); break;
-            case 2: user_login();  break;
-            case 3: admin_login();  break;
-            case 0: return;
-            default: printf("Sorry, your input is wrong. Please input again!\n"); system("pause"); system("cls"); break;
-        }
-    }
+	while (1)
+	{
+		printf("+---------------------------------------------+\n\n");
+		printf("Welcome to use the management system of books!\n\n");
+		printf("Please operate according to the number\n\n");
+		printf("1 users registe\n\n");
+		printf("2 users login\n\n");
+		printf("3 Administrator login\n\n");
+		printf("0 Quit\n\n");
+		printf("+---------------------------------------------+\n\n");
+		int op; scanf("%d", &op); system("cls");
+		switch (op)
+		{
+		case 1: user_register(); break;
+		case 2: user_login();  break;
+		case 3: admin_login();  break;
+		case 0: return;
+		default: printf("Sorry, your input is wrong. Please input again!\n\n"); system("pause"); system("cls"); break;
+		}
+	}
 }
 
 
-/********ä¸»èœå•åŠŸèƒ½åŒº***********/
-void user_register()  //ç”¨æˆ·æ³¨å†Œ
+/********Ö÷²Ëµ¥¹¦ÄÜÇø***********/
+void user_register()  //ÓÃ»§×¢²á
 {
-    char name[30];
-    printf("Please input your username(less than 30 alphabet)ï¼š\n");
-    scanf("%s", name);
-    printf("%d",strlen(name));
-    if(strlen(name)>30){
-        printf("Your username is too long! Please input again!");
-        system("pause"); system("cls"); return;
-    }
-    User* account;
-    if (account = serch_username(name), account != NULL)
-    {
-        printf("This username exist! Please change and input again! \n");
-        system("pause"); system("cls"); return;
-    }
-    printf("Please input your password!(less than 30 alphabet)ï¼š\n");
-    char password[30];
-    scanf("%s", password);
-    if(strlen(password)>30){
-        printf("Your username is too long! Please input again!");
-        system("pause"); system("cls"); return;
-    }
-    printf("Please input your nameï¼š\n");
-    char ID[30];
-    scanf("%s", ID);
-    creat_user_list(name, password, ID);
-    printf("Dear %s, you successfully registe the account!\n",name);
-    ++user_amount;
-    system("pause"); system("cls");
+	char name[30];
+	printf("Please input your username(less than 30 alphabet)£º\n\n");
+	scanf("%s", name);
+
+	while(strlen(name)>30){
+		printf("Your username is too long! Please input again!");
+		system("pause"); system("cls");
+		printf("Please input your username(less than 30 alphabet)£º\n\n");
+		scanf("%s", name);
+	}
+	User* account;
+	while(account = serch_username(name), account != NULL)
+	{
+		printf("This username exist! Please change and input again! \n\n");
+		system("pause"); system("cls"); 
+		printf("Please input your username(less than 30 alphabet)£º\n\n");
+		scanf("%s", name);
+	}
+	printf("Please input your password!(less than 30 alphabet)£º\n\n");
+	char password[30];
+	scanf("%s", password);
+	while(strlen(password)>30){
+		printf("Your username is too long! Please input again!");
+		system("pause"); system("cls");
+		printf("Please input your password!(less than 30 alphabet)£º\n\n");
+		scanf("%s", password);
+	}
+	printf("Please input your name£º\n\n");
+	char ID[30];
+	scanf("%s", ID);
+	creat_user_list(name, password, ID);
+	printf("Dear %s, you successfully registe the account!\n\n",name);
+	++user_amount;
+	system("pause"); system("cls");
 }
 
-void user_login()  //ç”¨æˆ·ç™»å½•
+void user_login()  //ÓÃ»§µÇÂ¼
 {
-    char name[30];
-    printf("Please input your username:(less than 30 alphabet): \n");
-    scanf("%s", name);
-    User* account;
-    if (account = serch_username(name), account == NULL)
-    {
-        printf("The username is not be registed! Please registe or login again! \n");
-        system("pause"); system("cls"); return;
-    }
-    printf("Please input your password!(less than 30 alphabet)\n");
-    scanf("%s", name);
-    if (strcmp(account->password, name))
-    {
-        printf("Password is wrong, please log in again\n");
-        system("pause"); system("cls"); return;
-    }
-    printf("Log in successfully! You will go to the user page!\n");
-    system("pause"); system("cls");
-    user_menu(account);
+	char name[30];
+	printf("Please input your username:(less than 30 alphabet): \n\n");
+	scanf("%s", name);
+	User* account;
+	if (account = serch_username(name), account == NULL)
+	{
+		printf("The username is not be registed! Please registe or login again! \n\n");
+		system("pause"); system("cls"); return;
+	}
+	printf("Please input your password!(less than 30 alphabet)\n\n");
+	scanf("%s", name);
+	if (strcmp(account->password, name))
+	{
+		printf("Password is wrong, please log in again\n\n");
+		system("pause"); system("cls"); return;
+	}
+	printf("Log in successfully! You will go to the user page!\n\n");
+	system("pause"); system("cls");
+	user_menu(account);
 }
 
-void admin_login()  //ç®¡ç†å‘˜ç™»é™†
+void admin_login()  //¹ÜÀíÔ±µÇÂ½
 {
-    char name[30];
-    printf("Dear Administrator:\n");
-    printf("Please input your username(less than 30 alphabet):\n");
-    scanf("%s", name);
-    User* account;
-    if (account = serch_username(name), account == NULL)
-    {
-        printf("Sorry the username is not exist, please input again!\n");
-        system("pause"); system("cls"); return;
-    }
-    if (!account->admin)
-    {
-        printf("Sorry, your usrename do not have the jurisdiction of administrator! Please contect other administraror!\n");
-        system("pause"); system("cls"); return;
-    }
-    printf("Please input your password(less than 30 alphabet)\n");
-    scanf("%s", name);
-    if (strcmp(account->password, name))
-    {
-        printf("Password is wrong, please log in again!\n");
-        system("pause"); system("cls"); return;
-    }
-    printf("Dear %s, you successfully registe the account!\n",name);
-    system("pause"); system("cls");
-    admin_menu(account);
+	char name[30];
+	printf("Dear Administrator:\n\n");
+	printf("Please input your username(less than 30 alphabet):\n\n");
+	scanf("%s", name);
+	User* account;
+	if (account = serch_username(name), account == NULL)
+	{
+		printf("Sorry the username is not exist, please input again!\n\n");
+		system("pause"); system("cls"); return;
+	}
+	if (!account->admin)
+	{
+		printf("Sorry, your usrename do not have the jurisdiction of administrator! Please contect other administraror!\n\n");
+		system("pause"); system("cls"); return;
+	}
+	printf("Please input your password(less than 30 alphabet)\n\n");
+	scanf("%s", name);
+	if (strcmp(account->password, name))
+	{
+		printf("Password is wrong, please log in again!\n\n");
+		system("pause"); system("cls"); return;
+	}
+	printf("Dear %s, you successfully registe the account!\n\n",name);
+	system("pause"); system("cls");
+	admin_menu(account);
 }
 
-/********æ ¸å¿ƒåŠŸèƒ½åŒº***********/
-void creat_user_list(char* name, char* password, char* ID)  //åˆ›å»ºç”¨æˆ·é“¾è¡¨
+/********ºËĞÄ¹¦ÄÜÇø***********/
+void creat_user_list(char* name, char* password, char* ID)  //´´½¨ÓÃ»§Á´±í
 {
-    User* np = (User*)malloc(sizeof(User));
-    np = user_head;
-    while (np->next) np = np->next;
-    User* tp = (User*)malloc(sizeof(User));
-    strcpy(tp->user_name, name);
-    strcpy(tp->password, password);
-    strcpy(tp->ID, ID);
-    tp->admin = 0;
-    tp->next = NULL;
-    user_initi(tp);
-    np->next = tp;
-    save();
+	User* np = (User*)malloc(sizeof(User));
+	np = user_head;
+	while (np->next) np = np->next;
+	User* tp = (User*)malloc(sizeof(User));
+	strcpy(tp->user_name, name);
+	strcpy(tp->password, password);
+	strcpy(tp->ID, ID);
+	tp->admin = 0;
+	tp->next = NULL;
+	user_initi(tp);
+	np->next = tp;
+	save();
 }
 
-void creat_book_list(char* title, char* isbn, char* author, char* publisher, int cnt)  //åˆ›å»ºå›¾ä¹¦é“¾è¡¨
+void creat_book_list(char* title, char* isbn, char* author, char* publisher, char* year, int cnt)  //´´½¨Í¼ÊéÁ´±í
 {
-    Book* np = (Book*)malloc(sizeof(Book));
-    np = book_head;
-    while (np->next) np = np->next;
-    Book* tb = (Book*)malloc(sizeof(Book));
-    strcpy(tb->title, title);
-    strcpy(tb->isbn, isbn);
-    strcpy(tb->author, author);
-    strcpy(tb->publisher, publisher);
-    tb->cnt = cnt;
-    tb->next = NULL;
-    np->next = tb;
-    save();
+	Book* np = (Book*)malloc(sizeof(Book));
+	np = book_head;
+	while (np->next) np = np->next;
+	Book* tb = (Book*)malloc(sizeof(Book));
+	strcpy(tb->title, title);
+	strcpy(tb->isbn, isbn);
+	strcpy(tb->author, author);
+	strcpy(tb->publisher, publisher);
+	strcpy(tb->year, year );
+	tb->cnt = cnt;
+	tb->next = NULL;
+	np->next = tb;
+	save();
 }
 
-void user_initi(User* account)  //ç”¨æˆ·å›¾ä¹¦ç®¡ç†åˆå§‹åŒ–
+void user_initi(User* account)  //ÓÃ»§Í¼Êé¹ÜÀí³õÊ¼»¯
 {
-    account->user_book.borrow_amount = 0;
-    account->user_book.max_amount = 10;
-    account->user_book.tax = 1.0;
-    memset(account->user_book.borrow_time, 0, sizeof(account->user_book.borrow_time));
-    memset(account->user_book.return_time, 0, sizeof(account->user_book.return_time));
-    memset(account->user_book.borrow_book, 0, sizeof(account->user_book.borrow_book));
+	account->user_book.borrow_amount = 0;
+	account->user_book.max_amount = 10;
+	account->user_book.tax = 1.0;
+	memset(account->user_book.borrow_time, 0, sizeof(account->user_book.borrow_time));
+	memset(account->user_book.return_time, 0, sizeof(account->user_book.return_time));
+	memset(account->user_book.borrow_book, 0, sizeof(account->user_book.borrow_book));
 }
+
+void load()  //´ÓÎÄ¼şÖĞ¼ÓÔØÊı¾İ
+{
+	book_head = (Book*)malloc(sizeof(Book));
+	book_head->next = NULL;
+	book_amount = 0;
+
+	FILE* fp2;
+	fp2 = fopen("book.bin", "rb");
+	if (fp2 == NULL)
+	{
+		fp2 = fopen("book.bin", "wb");
+		if (fp2 == NULL)
+		{
+			printf("Book storage failed!\n\n"); exit(0);
+		}
+		fclose(fp2);
+	}
+	else
+	{
+		Book* bp = (Book*)malloc(sizeof(Book));
+		bp = book_head;
+		Book* tp = (Book*)malloc(sizeof(Book));
+		while (fread(tp, sizeof(Book), 1, fp2))
+		{
+			bp->next = tp;
+			++book_amount;
+			tp = tp->next;
+			tp = (Book*)malloc(sizeof(Book));
+			bp = bp->next;
+		}
+		fclose(fp2);
+	}
+
+	user_head = (User*)malloc(sizeof(User));
+	user_head->next = NULL;
+	user_amount = 0;
+
+	FILE* fp1;
+	fp1 = fopen("user.bin", "rb");
+	if (fp1 == NULL)
+	{
+		admin_initi(); return;
+	}
+	User* np = (User*)malloc(sizeof(User));
+	np = user_head;
+	User* temp = (User*)malloc(sizeof(User));
+	while (fread(temp, sizeof(User), 1, fp1))
+	{
+		np->next = temp;
+		++user_amount;
+		temp = temp->next;
+		temp = (User*)malloc(sizeof(User));
+		np = np->next;
+	}
+	leeds = user_head->next;
+	fclose(fp1);
+}
+
+void save()  //±£´æÊı¾İµ½ÎÄ¼ş
+{
+	FILE* fp = fopen("user.bin", "wb");
+	User* temp = user_head->next;
+	while (temp)
+	{
+		fwrite(temp, sizeof(User), 1, fp);
+		temp = temp->next;
+	}
+	fclose(fp);
+
+	fp = fopen("book.bin", "wb");
+	Book* tb = book_head->next;
+	while (tb)
+	{
+		fwrite(tb, sizeof(Book), 1, fp);
+		tb = tb->next;
+	}
+	fclose(fp);
+}
+
+
+/********ÓÃ»§¹¦ÄÜÇø***********/
+void user_menu(User* account)  //ÓÃ»§²Ëµ¥
+{
+	while (1)
+	{
+
+		printf("+---------------------------------------------+\n\n");
+		printf("Dear,%s\n\n Welcome!\n\n", account->user_name);
+		printf("Please operate according to the number\n\n");
+		printf("1 Borrow Management\n\n");
+		printf("2 Return book Management\n\n");
+		printf("3 Browse the borrowing history\n\n");
+		printf("4 Browse books\n\n");
+		printf("5 Change the account information\n\n");
+		printf("6 Delete account\n\n");
+		printf("0 Quit\n\n");
+		printf("+---------------------------------------------+\n\n");
+		int op; scanf("%d", &op); system("cls");
+		switch (op)
+		{
+		case 1: borrow_book(account); break;
+		case 2: return_book(account); break;
+		case 3: history(account); system("pause"); system("cls"); break;
+		case 4: browse_book(); system("pause"); system("cls"); break;
+		case 5: user_change(account);  break;
+		case 6: if (delete_user(account))
+		{
+			printf("This account has been deleted, please log in again\n\n");
+			system("pause"); system("cls");
+			return;
+		}
+				else break;
+		case 0: printf("Account logout is successful!\n\n"); system("pause"); system("cls"); return;
+		default: printf("Sorry, your input is wrong. Please input again!\n\n"); system("pause"); system("cls"); break;
+		}
+	}
+}
+
+void user_change(User* account)  //¸ü¸ÄÓÃ»§ĞÅÏ¢
+{
+	printf("Dear£º%s\t You could now change your personal information!\n\n", account->user_name);
+	printf("Please input your new password (no more than 30 characters):\n\n");
+	char password[30];
+	scanf("%s", password);
+	while(strlen(password)>30){
+		printf("Your password is too long! Please input again!");
+		system("pause"); system("cls"); return;
+		printf("Please input your new password (no more than 30 characters):\n\n");
+		scanf("%s", password);
+	}
+	strcpy(account->password, password);
+	printf("Dear%s\t, your password has been changed\n\n", account->user_name);
+	printf("Please input your new name:\n\n");
+	char ID[100];
+	scanf("%s", ID);
+	strcpy(account->ID, ID);
+	printf("Dear%s\t, your name has been changed!\n\n", account->user_name);
+	save();
+	printf("Dear%s\t, your personal infoemation has been changed successfully!\n\n", account->user_name);
+	system("pause"); system("cls");
+}
+
+int delete_user(User* account)  //É¾³ıÕËºÅ
+{
+	printf("********************************************\n\n");
+	if (!strcmp(account->user_name, leeds->user_name))
+	{
+		printf("The user %s has the highest authority, so it can not be deleted\n\n", leeds->user_name);
+		system("pause"); system("cls"); return 0;
+	}
+	printf("Whether delete the user%s£¿\n\n", account->user_name);
+	printf("Please input number to continue your operation.\n\n");
+	printf("1 yes\t0 no\n\n");
+	int op;  scanf("%d", &op);
+	if (op == 1)
+	{
+		if (account->user_book.borrow_amount)
+		{
+			printf("Delete failed! This user has %d books which need return. \n\n", account->user_book.borrow_amount);
+		}
+		else
+		{
+			User* tp = (User*)malloc(sizeof(User));
+			tp = user_head;
+			User* np = (User*)malloc(sizeof(User));
+			np = user_head->next;
+			while (np)
+			{
+				if (!strcmp(np->user_name, account->user_name))
+				{
+					tp->next = np->next;
+					free(np); --user_amount;
+					save();
+					printf("This user has been deleted successfully!\n\n");
+					system("pause"); system("cls");
+					return 1;
+				}
+				tp = np;
+				np = np->next;
+			}
+		}
+	}
+	else if (!op) printf("This operation has been cancel\n\n");
+	else printf("Sorry, your input is wrong. Please input again!\n\n");
+	system("pause"); system("cls"); return 0;
+}
+
+void borrow_book(User* account)  //½èÔÄ¹ÜÀí
+{
+	printf("Dear %s, please input your name \n\n", account->user_name);
+	char ID[30]; scanf("%s", ID); system("cls");
+	if (strcmp(account->ID, ID))
+	{
+		printf("Sorry, your name is wrong! Please input again.\n\n");
+		system("pause"); system("cls"); return;
+	}
+	while (1)
+	{
+		int ans = account->user_book.borrow_amount, Max = account->user_book.max_amount;
+		if (ans == Max)
+		{
+			printf("ÓÃ»§%s£º½èÔÄÍ¼ÊéÊıÁ¿ %d ±¾£¬ÒÑ´ïÉÏÏŞ %d ±¾£¬ÇëÏÈ¹é»¹²¿·ÖÍ¼Êé£¡\n", account->user_name, ans, Max);
+			system("pause"); system("cls"); return;
+		}
+		browse_book();
+		printf("ÇëÊäÈëÄúĞèÒª½èÔÄµÄÊé¼®ĞòºÅ(ÊäÈë -1 ÍË³öÉ¾³ı²Ù×÷)£º\n");
+		int cnt; scanf("%d", &cnt);
+		if (cnt == -1)
+		{
+			printf("ÒÑ³É¹¦ÍË³ö½èÔÄÏµÍ³£¡\n"); system("pause"); system("cls");
+			return;
+		}
+		else if (cnt > book_amount || cnt <= 0)
+		{
+			printf("ÇëÕıÈ·ÊäÈëÉÏÍ¼ÖĞÒÑÓĞµÄÍ¼ÊéĞòºÅ£¡\n");
+		}
+		else
+		{
+			printf("ÇëÉèÖÃÄúĞèÒª½èÔÄµÄÊ±¼ä(²»³¬¹ı90Ìì)£º\n");
+			int day; scanf("%d", &day);
+			if (day > 90 || day <= 0)
+				printf("ÊäÈë½èÔÄÊ±¼ä²»±»ÔÊĞí£¬ÇëÖØĞÂÊäÈë£¡\n");
+			else
+			{
+				Book* tb = (Book*)malloc(sizeof(Book));
+				tb = book_head->next;
+				for (int i = 1; i < cnt; ++i)
+					tb = tb->next;
+				account->user_book.borrow_book[ans] = *tb;
+				account->user_book.borrow_time[ans] = time(NULL);
+				account->user_book.return_time[ans] = time(NULL) + day * 3600 * 24;
+				++account->user_book.borrow_amount;
+				save();
+				printf("ÓÃ»§%s£º½èÔÄÍ¼Êé¡¶%s¡·³É¹¦£¡\n", account->user_name, tb->title);
+			}
+		}
+		system("pause"); system("cls");
+	}
+}
+
+void return_book(User * account)  //»¹Êé¹ÜÀí
+{
+
+	while (1)
+	{
+		history(account);
+		if (!account->user_book.borrow_amount)
+		{
+			system("pause"); system("cls"); return;
+		}
+		printf("ÇëÊäÈëÄúĞèÒª¹é»¹µÄÊé¼®ĞòºÅ£¨ÊäÈë-1ÒÔÍË³ö»¹ÊéÏµÍ³£©£¡\n");
+		int cnt = 0; scanf("%d", &cnt); system("cls");
+		if (cnt == -1)
+		{
+			printf("ÕıÔÚÍË³ö»¹ÔÄÏµÍ³£¬ÇëÉÔºó...\n");
+			system("pause"); system("cls"); return;
+		}
+		if (cnt > account->user_book.borrow_amount || cnt < 0)
+		{
+			printf("ÇëÕıÈ·ÊäÈëÉÏÊöÊé¼®ĞòºÅ£¡\n");
+		}
+		else
+		{
+			int i = 0;
+			for (--cnt; i < cnt; ++i);
+
+			char title[100];
+			strcpy(title, account->user_book.borrow_book[i].title);
+			time_t t = time(NULL);
+			printf("*************************************************\n");
+			printf("¹æ¶¨»¹ÊéÊ±¼ä£º%s", ctime(&account->user_book.return_time[i]));
+			printf("µ±Ç°Ê±¼ä£º%s", ctime(&t));
+			t -= account->user_book.return_time[i];
+			if (t > 0)
+			{
+				double cost = t / 3600.0 / 24 * account->user_book.tax;
+				printf("ÓÉÓÚÄúÎ´ÔÚÖ¸¶¨ÈÕÆÚÄÚ¹é»¹¡¶%s¡·,ÄúĞèÒªÖ§¸¶Î¥Ô¼½ğ%.2lfÔª\n", title, cost);
+			}
+			else printf("Êé¼®¡¶%s¡·½èÔÄÎ´³¬³öÊ±¼ä£¬ÎŞĞèÖ§¸¶Î¥Ô¼½ğ£¡\n", title);
+			for (; i < account->user_book.borrow_amount; ++i)
+			{
+				account->user_book.borrow_book[i] = account->user_book.borrow_book[i + 1];
+				account->user_book.borrow_time[i] = account->user_book.borrow_time[i + 1];
+				account->user_book.return_time[i] = account->user_book.return_time[i + 1];
+			}
+			--account->user_book.borrow_amount;
+			save();
+			printf("Êé¼®¡¶%s¡·¹é»¹³É¹¦£¡\n", title);
+		}
+		system("pause"); system("cls");
+	}
+}
+
+void history(User * account)  //ÀúÊ·½èÔÄä¯ÀÀ
+{
+	int n = account->user_book.borrow_amount;
+	printf("*************************************************************\n");
+	printf("ÓÃ»§%s£º\n", account->user_name);
+	if (!n)
+	{
+		printf("ÔİÎŞÊé¼®ÔÚ½èÔÄ¼ÇÂ¼£¡\n"); return;
+	}
+	printf("½èÔÄÊé¼®ĞòºÅ£º\n");
+	for (int i = 0; i < n; ++i)
+	{
+		struct node t = account->user_book;
+		time_t nt = time(NULL) - t.return_time[i];
+		double cost = 0.0;
+		if (nt > 0) cost = t.tax * (nt / 3600.0 / 24);
+		printf("%d£º\n", i + 1);
+		printf("  ÊéÃû£º¡¶%s¡·\n", t.borrow_book[i].title);
+		printf("  ½èÔÄÈÕÆÚ£º%s", ctime(&t.borrow_time[i]));
+		printf("  ¹æ¶¨»¹ÊéÈÕÆÚ£º%s", ctime(&t.return_time[i]));
+		if (nt > 0) printf("  ÊÇ·ñ³¬Ê±£ºÊÇ\n");
+		else printf("  ÊÇ·ñ³¬Ê±£º·ñ\n");
+		printf("  ½èÔÄ·ÑÓÃ£º%.2lf\n", cost);
+	}
+}
+
+
+/********¹ÜÀíÔ±¹¦ÄÜÇø***********/
+void admin_initi()  //³¬¼¶¹ÜÀíÔ±ÕËºÅ³õÊ¼»¯
+{
+	FILE* fp = fopen("user.bin", "wb");
+	if (fp == NULL)
+	{
+		printf("Failed to initialize administrator authority!\n"); exit(0);
+	}
+	leeds = (User*)malloc(sizeof(User));
+	strcpy(leeds->user_name, "leeds");
+	strcpy(leeds->password, "leeds");
+	strcpy(leeds->ID, "leeds");
+	leeds->admin = 1;
+	leeds->next = NULL;
+	user_initi(leeds);
+	user_head->next = leeds;
+	user_amount = 1;
+	save();
+	fclose(fp);
+}
+
+User* serch_username(char* name)  //²éÕÒÓÃ»§Ãû
+{
+	User* np = user_head->next;
+	while (np)
+	{
+		if (!strcmp(np->user_name, name)) return np;
+		np = np->next;
+	}
+	return NULL;
+}
+
+void admin_menu(User * account)  //¹ÜÀíÔ±²Ëµ¥
+{
+	while (1)
+	{
+		system("color 9F");
+		printf("*************************************************\n");
+		printf("Dear administrator, %s\n Welcome you!\n", account->user_name);
+		printf("Please operate according to the number\n");
+		printf("1 increase books\n");
+		printf("2 delete books\n");
+		printf("3 browse books\n");
+		printf("4 manage users' information\n");
+		printf("0 Quit\n");
+		printf("*************************************************\n");
+		int op; scanf("%d", &op); system("cls");
+		switch (op)
+		{
+		case 1: add_book(); break;
+		case 2: delete_book(); break;
+		case 3: browse_book(); system("pause"); system("cls"); break;
+		case 4: admin_user(); break;
+		case 0: printf("Exit the admin account successfully!\n"); system("pause"); system("cls"); return;
+		default: printf("Sorry, your input is wrong. Please input again!£¡\n"); system("pause"); system("cls"); break;
+		}
+	}
+}
+
+void query_user()  //ÓÃ»§ĞÅÏ¢²éÑ¯
+{
+	int cnt = 1;
+	User* np = (User*)malloc(sizeof(User));
+	np = user_head->next;
+	printf("number  username\t\tpassword\t\tname\t\twhether administrator\n");
+	while (np)
+	{
+		printf("%d¡¢ %-20s %-20s %-20s", cnt, np->user_name, np->password, np->ID);
+		if (np->admin) printf(" yes\n");
+		else printf(" no\n");
+		np = np->next;
+		++cnt;
+	}
+}
+
+void admin_user()  //¹ÜÀíÓÃ»§ĞÅÏ¢
+{
+	while (1)
+	{
+
+		printf("*************************************************\n");
+		printf("Welcome to the user administration interface!\n");
+		printf("In this interface you can freely view, change the user information!\n");
+		printf("Please operate according to the number\n");
+		printf("1 View the user's personal information\n");
+		printf("2 Change user's personal information\n");
+		printf("3 Check the return and borrow informatio of the user's book\n");
+		printf("4 Set admin rights\n");
+		printf("5 Delete user account\n");
+		printf("0 Back to the previous page\n");
+		printf("*************************************************\n");
+		User* np = (User*)malloc(sizeof(User));
+		int op; scanf("%d", &op); system("cls");
+		switch (op)
+		{
+		case 1: query_user(); system("pause"); system("cls"); break;
+		case 2: if (np = serch_user(), np != NULL) user_change(np);
+				else
+		{
+			system("pause"); system("cls");
+		}
+				break;
+		case 3: all_history(); break;
+		case 4: if (np = serch_user(), np != NULL) set_admin(np);
+				else
+		{
+			system("pause"); system("cls");
+		}
+				break;
+		case 5:if (np = serch_user(), np != NULL)
+		{
+			int admin = np->admin;
+			if (delete_user(np) && admin)
+				printf("This account has been deleted, please login again!\n");
+			system("pause"); system("cls");
+			return;
+		}
+			   else
+		{
+			system("pause"); system("cls");
+		}
+			   break;
+		case 0: printf("Exit user admin interface successfully!\n"); system("pause"); system("cls"); return;
+		default: printf("Sorry, your input is wrong. Please input again!\n"); system("pause"); system("cls"); break;
+		}
+	}
+}
+
+void all_history() //²é¿´ÓÃ»§Í¼Êé½èÔÄ¹é»¹Çé¿ö
+{
+	while (1)
+	{
+		printf("###########################################################\n");
+		printf("Welcome to use the user library borrowing return query system!\n");
+		User* account = (User*)malloc(sizeof(User));
+		account = serch_user();
+		if (account)
+		{
+			history(account);
+			printf("Check successfully! Returning to the upper level!\n");
+			system("pause"); system("cls"); return;
+		}
+		system("pause"); system("cls");
+	}
+}
+
+User* serch_user()  //°´ĞòºÅËÑË÷ÓÃ»§
+{
+	query_user();
+	printf("Please enter the serial number of the user to be operated:\n");
+	int cnt; scanf("%d", &cnt); system("cls");
+	if (cnt > user_amount || cnt <= 0)
+		printf("Please correctly enter the user serial number to be operated in the figure above!\n");
+	else
+	{
+		User* tb = (User*)malloc(sizeof(User));
+		tb = user_head->next;
+		for (int i = 1; i < cnt; ++i)
+			tb = tb->next;
+		return tb;
+	}
+	return NULL;
+}
+
+void set_admin(User * account)  //ÉèÖÃ¹ÜÀíÔ±
+{
+	printf("*******************************************************************\n");
+	if (!strcmp(account->user_name, leeds->user_name))
+	{
+		printf("User %s has the highest management authority, can not be modified!! Returning to the upper level\n", leeds->user_name);
+		system("pause"); system("cls"); return;
+	}
+	printf("Are you sure to set the user %s as administrator?\n", account->user_name);
+	printf("Please enter the corresponding number to continue!\n");
+	printf("1. Set as administrator\t0. Cancel administrator privileges\n");
+	int op; scanf("%d", &op);
+	if (op == 1)
+	{
+		account->admin = op;
+		printf("User %s\t administrator privileges set successfully!\n", account->user_name);
+	}
+	else if (op == 0)
+	{
+		account->admin = op;
+		printf("User%s\tAdministrator privileges have been revoked!\n", account->user_name);
+	}
+	else
+	{
+		printf("Failed to set administrator permissions, please enter as required!\n");
+	}
+	printf("*******************************************************************\n");
+	save();
+	system("pause"); system("cls");
+}
+
+/********Í¼Êé¹¦ÄÜÇø***********/
+void add_book()  //Ôö¼ÓÍ¼ÊéĞÅÏ¢
+{
+	char title[100], isbn[100], author[100], publisher[100], year[4];
+	int cnt;
+	printf("Please enter the name of the book to be added:\n");
+	scanf("%s", title);
+	printf("Please enter the book ISBN to be added:\n");
+	scanf("%s", isbn);
+	printf("Please enter the author of the book to be added:\n");
+	scanf("%s", author);
+	printf("Please enter the book publisher to be added:\n");
+	scanf("%s", publisher);
+	printf("Please enter the year of books to be added:\n");
+	scanf("%s", year);
+	printf("Please enter the number of books to be added:\n");
+	scanf("%d", &cnt);
+
+	++book_amount;
+	creat_book_list(title, isbn, author, publisher,year, cnt);
+	printf("Added book %s successfully!\n", title);
+	system("pause"); system("cls");
+}
+
+void delete_book()  //É¾³ıÍ¼ÊéĞÅÏ¢
+{
+	while (1)
+	{
+		browse_book();
+		printf("Please enter the serial number of the book to be deleted(Enter -1 to exit the delete operation):\n");
+		int cnt; scanf("%d", &cnt);
+		if (cnt == -1)
+		{
+			printf("The deletion system has been successfully exited!\n"); system("pause"); system("cls");
+			return;
+		}
+		else if (cnt > book_amount || cnt <= 0)
+		{
+			printf("Please correctly enter the number of books to be deleted in the picture above!\n");
+		}
+		else
+		{
+			Book* tb = (Book*)malloc(sizeof(Book));
+			Book* np = (Book*)malloc(sizeof(Book));
+			np = book_head;
+			tb = book_head->next;
+			for (int i = 1; i < cnt; ++i)
+			{
+				np = tb;
+				tb = tb->next;
+			}
+			np->next = tb->next;
+			free(tb); --book_amount;
+			save();
+			printf("The book has been removed from the library successfully!\n");
+		}
+		system("pause"); system("cls");
+	}
+}
+
+void browse_book()  //Í¼Êéä¯ÀÀ
+{
+	int cnt = 1;
+	if (!book_amount)
+	{
+		printf("\n");
+		return;
+	}
+	Book* tb = (Book*)malloc(sizeof(Book));
+	tb = book_head->next;
+	printf("There are no books in the library, please contact the librarian to add books!\n");
+	printf("ĞòºÅ\tÊéÃû\tÊéºÅ\t×÷Õß\t³ö°æÉç\tÄê´ú\t×Ü¿â´æÁ¿\n");
+	while (tb)
+	{
+		printf("%-4d¡¶%s¡· %-20s %-20s %-20s %-20s %d\n", cnt, tb->title, tb->isbn,
+			tb->author, tb->publisher,tb->year ,tb->cnt);
+		tb = tb->next; ++cnt;
+	}
+}
+
+
