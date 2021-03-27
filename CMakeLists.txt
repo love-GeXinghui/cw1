@@ -3,4 +3,4 @@ project(cw1 C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(cw1 cw1.c)
+add_executable(cw1 book_mangement.h users.h main.c book_mangement.c users.c)
