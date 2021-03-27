@@ -7,7 +7,7 @@
 #include "users.h"
 #include "book_mangement.h"
 
-void user_menu(User* account)  //用户菜单
+void user_menu(User* account)
 {
     while (1)
     {
