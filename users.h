@@ -9,17 +9,17 @@ typedef struct _Book
     char title[100];
     char isbn[100];
     char author[100];
-    char publisher[100];
+    int publisher;
     char year[30];
     int cnt;
     struct _Book* next;
 }Book;
-struct node //用户所借书籍
+struct node //Books borrowed by the user
 {
-    int borrow_amount, max_amount; //所借书籍数量， 最大借书数
-    double tax;  //超出时限收费比率
-    time_t borrow_time[10], return_time[10];  //借、还时间
-    Book borrow_book[100];  //每位最多借10本书籍
+    int borrow_amount, max_amount; //Number of books borrowed, maximum number of books borrowed
+    double tax;  //Rate of charges for exceeding time limits
+    time_t borrow_time[10], return_time[10];  //Borrow and return time
+    Book borrow_book[100];  //Each person can borrow a maximum of 10 books
 };
 
 typedef struct user //用户
@@ -36,9 +36,8 @@ User* leeds;  //超级管理员账号
 int user_amount;  //用户总数量
 
 //程序功能区
-void welcome_page();  //欢迎页面
-void producer_infor();  //制作人员信息
-void manual();  //使用手册
+
+
 void main_menu();  //主菜单
 
 //主菜单功能区
@@ -64,10 +63,6 @@ void history(User*);  //历史借阅浏览
 void admin_initi();  //超级管理员账号初始化
 User* serch_username(char*);  //查找用户名
 void admin_menu(User*);  //管理员菜单
-void query_user();  //用户信息查询
-void admin_user();  //管理用户信息
-void all_history(); //查看用户图书借阅归还情况
-User* serch_user();  //按序号搜索用户
-void set_admin(User*);  //设置管理员
+
 
 #endif //CW1_USERS_H

@@ -8,7 +8,7 @@
 #include "users.h"
 #include "book_mangement.h"
 
-void creat_book_list(char* title, char* isbn, char* author, char* publisher, char* year, int cnt)  //创建图书链表
+void creat_book_list(char* title, char* isbn, char* author, int publisher, char* year, int cnt)  //创建图书链表
 {
     Book* np = (Book*)malloc(sizeof(Book));
     np = book_head;
@@ -17,7 +17,7 @@ void creat_book_list(char* title, char* isbn, char* author, char* publisher, cha
     strcpy(tb->title, title);
     strcpy(tb->isbn, isbn);
     strcpy(tb->author, author);
-    strcpy(tb->publisher, publisher);
+    tb->publisher=publisher;
     strcpy(tb->year, year );
     tb->cnt = cnt;
     tb->next = NULL;
@@ -25,17 +25,9 @@ void creat_book_list(char* title, char* isbn, char* author, char* publisher, cha
     save();
 }
 
-void user_initi(User* account)  //用户图书管理初始化
-{
-    account->user_book.borrow_amount = 0;
-    account->user_book.max_amount = 10;
-    account->user_book.tax = 1.0;
-    memset(account->user_book.borrow_time, 0, sizeof(account->user_book.borrow_time));
-    memset(account->user_book.return_time, 0, sizeof(account->user_book.return_time));
-    memset(account->user_book.borrow_book, 0, sizeof(account->user_book.borrow_book));
-}
 
-void load()  //从文件中加载数据
+
+void load()  //Load data from a file
 {
     book_head = (Book*)malloc(sizeof(Book));
     book_head->next = NULL;
@@ -93,7 +85,7 @@ void load()  //从文件中加载数据
     fclose(fp1);
 }
 
-void save()  //保存数据到文件
+void save()  //Save the data to a file
 {
     FILE* fp = fopen("user.bin", "wb");
     User* temp = user_head->next;
@@ -114,10 +106,10 @@ void save()  //保存数据到文件
     fclose(fp);
 }
 
-void add_book()  //增加图书信息
+void add_book()  //Add Book Information
 {
-    char title[100], isbn[100], author[100], publisher[100], year[4];
-    int cnt;
+    char title[100], isbn[100], author[100],  year[4];
+    int cnt,publisher;
     printf("Please enter the title of the book to be added:\n");
     scanf("%s", title);
 
@@ -130,6 +122,7 @@ void add_book()  //增加图书信息
     scanf("%d", &cnt);
     printf("Please input the number of the book:\n ");
     scanf("%s",isbn);
+    publisher = cnt;
     Book* number;
     while(number = serch_booknumber(isbn),number != NULL)
     {
@@ -138,6 +131,7 @@ void add_book()  //增加图书信息
         printf("\nPlease input the number of the book:\n");
         scanf("%s", isbn);
     }
+
     ++book_amount;
     creat_book_list(title, isbn, author, publisher,year, cnt);
     printf("Added book %s successfully!\n", title);
@@ -155,35 +149,45 @@ Book* serch_booknumber(char* isbn)
     return NULL;
 }
 
-void delete_book()  //删除图书信息
+void delete_book()  //Delete book information
 {
     while (1)
     {
         browse_book();
         printf("Please enter the serial number of the book to be deleted(Enter -1 to exit the delete operation):\n");
-        int cnt; scanf("%d", &cnt);
-        if (cnt == -1)
+        char isbn[100];
+        int cnt; scanf("%s", isbn);
+
+        cnt = -1;
+        if (cnt == atoi(isbn))
         {
             printf("The deletion system has been successfully exited!\n"); system("pause"); system("cls");
             return;
         }
-        else if (cnt > book_amount || cnt <= 0)
+        else if (find_book_bu_isbn( isbn)==NULL)
         {
             printf("Please correctly enter the number of books to be deleted in the picture above!\n");
         }
+        else if(find_book_bu_isbn(isbn)->publisher!=find_book_bu_isbn(isbn)->cnt)
+        {printf("The book is loaned so it cannot be deleted");}
         else
         {
-            Book* tb = (Book*)malloc(sizeof(Book));
-            Book* np = (Book*)malloc(sizeof(Book));
-            np = book_head;
-            tb = book_head->next;
-            for (int i = 1; i < cnt; ++i)
+
+            Book* np = book_head;
+            Book* temp;
+            while(np->next!=NULL)
             {
-                np = tb;
-                tb = tb->next;
+                if(!strcmp(np->next->isbn,isbn)){
+                    temp=np->next;
+                    np->next=temp->next;
+                    free(temp);
+                    break;
+                }
+                np = np->next;
+
             }
-            np->next = tb->next;
-            free(tb); --book_amount;
+
+            --book_amount;
             save();
             printf("The book has been removed from the library successfully!\n");
         }
@@ -191,27 +195,28 @@ void delete_book()  //删除图书信息
     }
 }
 
-void browse_book()  //图书浏览
+void browse_book()  //Browse book
 {
     int cnt = 1;
     if (!book_amount)
     {
         printf("\n");
+        printf("There are no books in the library, please contact the librarian to add books!\n");
         return;
     }
     Book* tb = (Book*)malloc(sizeof(Book));
     tb = book_head->next;
-    printf("There are no books in the library, please contact the librarian to add books!\n");
-    printf("序号\t书名\t书号\t作者\t出版社\t年代\t总库存量\n");
+
+    printf("\ntitle           author          year            copies          number\n");
     while (tb)
     {
-        printf("%-4d《%s》 %-20s %-20s %-20s %-20s %d\n", cnt, tb->title, tb->isbn,
-               tb->author, tb->publisher,tb->year ,tb->cnt);
+        printf("\n%-15s %-15s %-15s %-15d %-5s\n",tb->title,tb->author,tb->year,tb->cnt,tb->isbn);
         tb = tb->next; ++cnt;
     }
 }
 
-void findbook(){
+void findbook() //Find book
+{
     int num,a=0;
     char title[30], author[30], year[30];
     Book* books;
@@ -276,6 +281,7 @@ void findbook(){
     }while(a=1);
 }
 
+// Find book by the title of book
 int find_book_by_title(char* title)
 {
     int a=0;
@@ -292,11 +298,12 @@ int find_book_by_title(char* title)
         np = np->next;
     }
     if(a==0){system("cls");
-        printf("Sorry, the book is not found! Please try to find other book!");
+        printf("Sorry, the book is not found!\n Please try to find other book!\n");
     };
     return a;
 }
 
+// Find book by the author of book
 int find_book_by_author(char* author)
 {
     int a=0;
@@ -313,11 +320,12 @@ int find_book_by_author(char* author)
         np = np->next;
     }
     if(a==0){system("cls");
-        printf("Sorry, the book is not found! Please try to find other book!");
+        printf("Sorry, the book is not found!\n Please try to find other book!\n");
     };
     return a;
 }
 
+// Find book by the year of book
 int find_book_by_year(char* year)
 {
     int a=0;
@@ -329,15 +337,17 @@ int find_book_by_year(char* year)
         if (strstr(np->year, year)){
 
             printf("\n%-15s %-15s %-15s %-15d %-5s\n",np->title,np->author,np->year,np->cnt,np->isbn);
+            a=1;
         }
         np = np->next;
     }
     if(a==0){system("cls");
-        printf("Sorry, the book is not found! Please try to find other book!");
+        printf("Sorry, the book is not found!\n Please try to find other book!\n");
     };
     return a;
 }
 
+// Find book by the isbn of book
 Book* find_book_bu_isbn(char* isbn){
     int a=0;
     Book* np = book_head->next;
@@ -350,3 +360,4 @@ Book* find_book_bu_isbn(char* isbn){
     }
     return NULL;
 }
+

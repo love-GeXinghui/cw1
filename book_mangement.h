@@ -21,6 +21,6 @@ Book* serch_booknumber(char* isbn);
 
 Book* find_book_bu_isbn(char* isbn);
 
-void creat_book_list(char*, char*, char*, char*, char*, int);  //创建图书链表
+void creat_book_list(char*, char*, char*, int, char*, int);  //创建图书链表
 void user_initi(User*);  //用户图书管理初始化
 #endif //CW1_BOOK_MANGEMENT_H

@@ -8,7 +8,7 @@
 #include "book_mangement.h"
 int main()
 {
-    welcome_page();
+    main_menu();
     printf("You successfully quit the system! Thank you for using it!\n\n");
     system("pause"); system("cls");
     return 0;
